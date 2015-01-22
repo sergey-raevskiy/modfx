@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "killswitch", "killswitch\killswitch.cproj", "{1A51C347-6F64-4058-9B94-D5B3F77033BE}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "tremolo", "tremolo\tremolo.cproj", "{0A84B065-0101-4715-BF89-280E46E4F70E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -13,6 +15,10 @@ Global
 		{1A51C347-6F64-4058-9B94-D5B3F77033BE}.Debug|AVR.Build.0 = Debug|AVR
 		{1A51C347-6F64-4058-9B94-D5B3F77033BE}.Release|AVR.ActiveCfg = Release|AVR
 		{1A51C347-6F64-4058-9B94-D5B3F77033BE}.Release|AVR.Build.0 = Release|AVR
+		{0A84B065-0101-4715-BF89-280E46E4F70E}.Debug|AVR.ActiveCfg = Debug|AVR
+		{0A84B065-0101-4715-BF89-280E46E4F70E}.Debug|AVR.Build.0 = Debug|AVR
+		{0A84B065-0101-4715-BF89-280E46E4F70E}.Release|AVR.ActiveCfg = Release|AVR
+		{0A84B065-0101-4715-BF89-280E46E4F70E}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
