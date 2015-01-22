@@ -5,6 +5,8 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 
+#define ADC_RATE 0
+
 static uint8_t map_exp(uint8_t val)
 {
     static const uint8_t lookup[] PROGMEM = {
@@ -36,28 +38,50 @@ static uint8_t map_exp(uint8_t val)
         reg &= ~(1 << bit);           \
 } while (0)
 
-ISR(TIMER0_OVF0_vect)
+static uint8_t cnt = 0;
+static uint8_t tempo = 40;
+
+ISR(TIMER1_CMPA_vect)
 {
-    static uint8_t i = 0;
-    OCR1A = map_exp(i++);
-    set_bit(PORTB, PB0, i < 0x3f);
+    if (cnt++ >= tempo)
+    {
+        static uint8_t i = 0;
+
+        OCR1A = map_exp(i);
+        set_bit(PORTB, PB0, i < 0x3f);
+
+        i++, cnt = 0;
+    }
+}
+
+static uint8_t adc_read(uint8_t nadc)
+{
+    ADMUX = (1 <<ADLAR) | nadc;
+    ADCSR |= (1 << ADSC);
+    while (ADCSR & (1 << ADSC));
+    return ADCH;
 }
 
 int main(void)
 {
-    // TIMER0 used as waveform generator.
-    TCCR0 = (CS01 << 1);
-
     // Configuring TIMER1 as PWM driver for vactrol.
     TCCR1B  = (1 << CS10) | (1 << CTC1);
     TCCR1A = (1 << PWM1A) | (1 << COM1A1);
     OCR1C = 0xff;
 
-    // Enable TIMER0 interrupt.
-    TIMSK = (1 << TOIE0);
+    // Enable OCRA interrupt.
+    TIMSK = (1 << OCIE1A);
 
     DDRB = (1 << PB0) | (1 << PB1);
 
+    // Enable ADC.
+    ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+
     sei();
-    while (1);
+
+    while (1)
+    {
+        uint8_t rate = adc_read(ADC_RATE);
+        tempo = 0xff - rate;
+    }
 }
