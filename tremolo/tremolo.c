@@ -1,11 +1,35 @@
-#define F_CPU 8000000
+#define F_CPU 8000000 
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 
-#define ADC_RATE 0
+enum {
+    ADC_RATE,
+    ADC_NOTE,
+    ADC_DEPTH,
+    ADC_WAVE
+};
+
+typedef enum {
+    WF_RAMPUP,
+    WF_RAMPDOWN,
+    WF_SQUARE,
+    WF_TRIANGLE,
+    WF_RES2,
+    WF_RES3,
+    WF_RES4,
+    WF_RES5,
+    WF_RES6,
+    WF_RES7,
+    WF_RES8,
+    WF_RES9,
+
+    WF_TOTAL
+} waveform_t;
+
+_Static_assert(WF_TOTAL == 12, "Total waveforms mismatch");
 
 static uint8_t map_exp(uint8_t val)
 {
@@ -31,6 +55,11 @@ static uint8_t map_exp(uint8_t val)
     return pgm_read_byte(&lookup[val]);
 }
 
+static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
+{
+    return (x - xmin) * (ymax - ymin) / (xmax - xmin) + ymin;
+}
+
 #define set_bit(reg, bit, state) do { \
     if (state)                        \
         reg |= (1 << bit);            \
@@ -40,6 +69,24 @@ static uint8_t map_exp(uint8_t val)
 
 static uint8_t cnt = 0;
 static uint8_t tempo = 40;
+static waveform_t wave = WF_RAMPUP;
+
+static uint8_t wave_func(uint8_t i)
+{
+    switch (wave)
+    {
+    case WF_RAMPUP:
+        return i;
+    case WF_RAMPDOWN:
+        return ~i;
+    case WF_SQUARE:
+        return (i & 0x80) ? 0 : 0xff;
+    case WF_TRIANGLE:
+        return (i & 0x80) ? (0xff - (i << 1)) : ((i - 0x80) << 1);
+    default:
+        return i;
+    }
+}
 
 ISR(TIMER1_CMPA_vect)
 {
@@ -47,7 +94,7 @@ ISR(TIMER1_CMPA_vect)
     {
         static uint8_t i = 0;
 
-        OCR1A = map_exp(i);
+        OCR1A = map_exp(wave_func(i));
         set_bit(PORTB, PB0, i < 0x3f);
 
         i++, cnt = 0;
@@ -60,6 +107,17 @@ static uint8_t adc_read(uint8_t nadc)
     ADCSR |= (1 << ADSC);
     while (ADCSR & (1 << ADSC));
     return ADCH;
+}
+
+static uint8_t map_rotary(uint8_t val, uint8_t npos)
+{
+    uint8_t pos;
+    for (pos = 0; pos < npos; pos++) {
+        uint16_t cmp = (255 * pos + 127) / (npos - 1);
+        if (val < cmp)
+            break;
+    }
+    return pos;
 }
 
 int main(void)
@@ -81,7 +139,10 @@ int main(void)
 
     while (1)
     {
-        uint8_t rate = adc_read(ADC_RATE);
-        tempo = 0xff - rate;
+        // Tempo
+        tempo = 0xff - adc_read(ADC_RATE);
+
+        // Waveform
+        wave = map_rotary(adc_read(ADC_WAVE), WF_TOTAL);
     }
-}
+}
