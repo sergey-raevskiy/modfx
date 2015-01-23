@@ -5,6 +5,8 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 
+#define unlikely(x) __builtin_expect(x, 0)
+
 enum {
     ADC_RATE,
     ADC_NOTE,
@@ -67,8 +69,7 @@ static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
         reg &= ~(1 << bit);           \
 } while (0)
 
-static uint8_t cnt = 0;
-static uint8_t tempo = 40;
+static uint16_t tempo = 400;
 static waveform_t wave = WF_RAMPUP;
 
 static uint8_t wave_func(uint8_t i)
@@ -88,16 +89,73 @@ static uint8_t wave_func(uint8_t i)
     }
 }
 
+static uint8_t tapst = 0;
+static uint16_t cycle_cnt = 0;
+
 ISR(TIMER1_CMPA_vect)
 {
-    if (cnt++ >= tempo)
+    static uint8_t y = 0;
+    static uint16_t nextpoint = 0;
+
+    if (unlikely(cycle_cnt >= tempo))
     {
-        static uint8_t i = 0;
+        cycle_cnt = 0;
+        y = 0;
+        nextpoint = 0;
+    }
 
-        OCR1A = map_exp(wave_func(i));
-        set_bit(PORTB, PB0, i < 0x3f);
+    if (unlikely(cycle_cnt >= nextpoint))
+    {
+        OCR1A = map_exp(wave_func(y));
 
-        i++, cnt = 0;
+        y++;
+        nextpoint = map_lin(y, 0, 255, 0, tempo);
+    }
+
+    set_bit(PORTB, PB0, (y < 0x3f) || tapst);
+
+    cycle_cnt++;
+}
+
+SIGNAL(TIMER0_OVF0_vect)
+{
+    static uint16_t cnt = 0;
+    static uint8_t btst = 0;
+    static uint8_t taps = 0;
+    cnt++;
+
+    btst <<= 1;
+    btst |= (PINB & (1 << PB2)) ? 0 : 1;
+
+    if (tapst && cnt >= 8192)
+    {
+        tapst = 0;
+        taps = 0;
+    }
+
+    switch (tapst)
+    {
+    case 0:
+    case 2:
+        if (btst == 0xff)
+        {
+            cnt = 0;
+            cycle_cnt = 0; // sync
+            tapst = 1;
+        }
+        break;
+    case 1:
+        if (btst == 0x00)
+        {
+            tapst = 2;
+            taps++;
+            if (taps == 4)
+            {
+                tempo = cnt * 8;
+                taps = 0;
+                tapst = 0;
+            }
+        }
     }
 }
 
@@ -127,9 +185,12 @@ int main(void)
     TCCR1A = (1 << PWM1A) | (1 << COM1A1);
     OCR1C = 0xff;
 
-    // Enable OCRA interrupt.
-    TIMSK = (1 << OCIE1A);
+    TCCR0 = (1 << CS01);
 
+    // Enable OCRA interrupt.
+    TIMSK = (1 << OCIE1A) | (1 << TOIE0);
+
+    PORTB = (1 << PB2);
     DDRB = (1 << PB0) | (1 << PB1);
 
     // Enable ADC.
@@ -140,8 +201,21 @@ int main(void)
     while (1)
     {
         // Tempo
-        tempo = 0xff - adc_read(ADC_RATE);
+        uint16_t new_tempo = (uint16_t) 0x100 - adc_read(ADC_RATE);
+        if (new_tempo == 0)
+            new_tempo = 1;
+        else if (new_tempo == 0x100)
+            new_tempo = 65535;
+        else
+            new_tempo = new_tempo * 256;
 
+        if (tempo != new_tempo)
+        {
+            cli();
+            //tempo = new_tempo;
+            sei();
+        }
+        
         // Waveform
         wave = map_rotary(adc_read(ADC_WAVE), WF_TOTAL);
     }
