@@ -212,7 +212,7 @@ int main(void)
 
         if (new_rate != old_rate)
         {
-            uint16_t new_tempo = map_lin(0xff - new_rate, 0, 255, 1, 65535);
+            uint16_t new_tempo = map_lin(0xff - new_rate, 0, 255, 255, 65535);
             old_rate = new_rate;
 
             cli();
