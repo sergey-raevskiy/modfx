@@ -121,42 +121,40 @@ SIGNAL(TIMER0_OVF0_vect)
 {
     static uint16_t cnt = 0;
     static uint8_t btst = 0;
-    static uint8_t taps = 0;
-    cnt++;
 
     btst <<= 1;
     btst |= (PINB & (1 << PB2)) ? 0 : 1;
 
     if (tapst && cnt >= 8192)
-    {
         tapst = 0;
-        taps = 0;
+
+    if (tapst == 2 * 4 /* 4 taps */)
+    {
+        // Got new tempo.
+        tapst = 0;
+
+        cli();
+        tempo = cnt * 8;
+        sei();
+    }
+    else if (!(tapst & 1) && btst == 0xff)
+    {
+        // Tap button pressed.
+        tapst++;
+
+        // Sync.
+        cycle_cnt = 0;
+
+        // Reset the counter.
+        cnt = 0;
+    }
+    else if ((tapst & 1) && btst == 0x00)
+    {
+        // Button unpressed.
+        tapst++;
     }
 
-    switch (tapst)
-    {
-    case 0:
-    case 2:
-        if (btst == 0xff)
-        {
-            cnt = 0;
-            cycle_cnt = 0; // sync
-            tapst = 1;
-        }
-        break;
-    case 1:
-        if (btst == 0x00)
-        {
-            tapst = 2;
-            taps++;
-            if (taps == 4)
-            {
-                tempo = cnt * 8;
-                taps = 0;
-                tapst = 0;
-            }
-        }
-    }
+    cnt++;
 }
 
 static uint8_t adc_read(uint8_t nadc)
