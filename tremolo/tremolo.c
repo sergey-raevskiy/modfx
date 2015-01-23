@@ -133,30 +133,39 @@ SIGNAL(TIMER0_OVF0_vect)
     if (tapst && cnt >= 8192)
         tapst = 0;
 
-    if (tapst == 2 * 4 /* 4 taps */)
-    {
-        // Got new tempo.
-        tapst = 0;
-
-        cli();
-        tempo = cnt * 8;
-        sei();
-    }
     else if (!(tapst & 1) && btst == 0xff)
     {
         // Tap button pressed.
         tapst++;
 
+        cli();
+
         // Sync.
         reset_cycle();
 
-        // Reset the counter.
-        cnt = 0;
+        if (tapst == 7)
+        {
+            // Last lap. Set the new tempo.
+            tempo = cnt * 8;
+        }
+        else
+        {
+            // Reset the counter.
+            cnt = 0;
+        }
+
+        sei();
     }
     else if ((tapst & 1) && btst == 0x00)
     {
         // Button unpressed.
         tapst++;
+
+        // Sequence completed.
+        if (tapst == 8)
+        {
+            tapst = 0;
+        }
     }
 
     cnt++;
