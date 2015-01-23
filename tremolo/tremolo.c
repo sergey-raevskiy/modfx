@@ -196,24 +196,24 @@ int main(void)
 
     sei();
 
+    tempo = 1;
+    uint8_t old_rate = 0;
+
     while (1)
     {
         // Tempo
-        uint16_t new_tempo = (uint16_t) 0x100 - adc_read(ADC_RATE);
-        if (new_tempo == 0)
-            new_tempo = 1;
-        else if (new_tempo == 0x100)
-            new_tempo = 65535;
-        else
-            new_tempo = new_tempo * 256;
+        uint8_t new_rate = adc_read(ADC_RATE);
 
-        if (tempo != new_tempo)
+        if (new_rate != old_rate)
         {
+            uint16_t new_tempo = map_lin(0xff - new_rate, 0, 255, 1, 65535);
+            old_rate = new_rate;
+
             cli();
-            //tempo = new_tempo;
+            tempo = new_tempo;
             sei();
         }
-        
+
         // Waveform
         wave = map_rotary(adc_read(ADC_WAVE), WF_TOTAL);
     }
