@@ -90,31 +90,36 @@ static uint8_t wave_func(uint8_t i)
 }
 
 static uint8_t tapst = 0;
-static uint16_t cycle_cnt = 0;
+
+static struct {
+    uint8_t y;
+    uint16_t next;
+    uint16_t cnt;
+} lfo;
+
+static void reset_cycle()
+{
+    lfo.y = 0;
+    lfo.cnt = 0;
+    lfo.next = 0;
+}
 
 ISR(TIMER1_CMPA_vect)
 {
-    static uint8_t y = 0;
-    static uint16_t nextpoint = 0;
+    if (unlikely(lfo.cnt >= tempo))
+        reset_cycle();
 
-    if (unlikely(cycle_cnt >= tempo))
+    if (unlikely(lfo.cnt >= lfo.next))
     {
-        cycle_cnt = 0;
-        y = 0;
-        nextpoint = 0;
+        OCR1A = map_exp(wave_func(lfo.y));
+
+        lfo.y++;
+        lfo.next = map_lin(lfo.y, 0, 255, 0, tempo);
     }
 
-    if (unlikely(cycle_cnt >= nextpoint))
-    {
-        OCR1A = map_exp(wave_func(y));
+    set_bit(PORTB, PB0, (lfo.y < 0x3f) || tapst);
 
-        y++;
-        nextpoint = map_lin(y, 0, 255, 0, tempo);
-    }
-
-    set_bit(PORTB, PB0, (y < 0x3f) || tapst);
-
-    cycle_cnt++;
+    lfo.cnt++;
 }
 
 SIGNAL(TIMER0_OVF0_vect)
@@ -143,7 +148,7 @@ SIGNAL(TIMER0_OVF0_vect)
         tapst++;
 
         // Sync.
-        cycle_cnt = 0;
+        reset_cycle();
 
         // Reset the counter.
         cnt = 0;
@@ -194,6 +199,7 @@ int main(void)
     // Enable ADC.
     ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
+    reset_cycle();
     sei();
 
     tempo = 1;
