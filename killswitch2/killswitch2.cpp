@@ -9,6 +9,12 @@
              GND -|_______|- PB0  (Button)
 */
 
+enum {
+    ADC_DEPTH = 1,
+    ADC_SPEED = 2,
+    ADC_MODE = 3,
+};
+
 int main()
 {
     while(1)
