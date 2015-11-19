@@ -5,6 +5,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "killswitch", "killswitch\ki
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "tremolo", "tremolo\tremolo.cproj", "{0A84B065-0101-4715-BF89-280E46E4F70E}"
 EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "killswitch2", "killswitch2\killswitch2.cppproj", "{31FE8F68-FD86-49E5-81EF-1C867CA69DD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -19,6 +21,10 @@ Global
 		{0A84B065-0101-4715-BF89-280E46E4F70E}.Debug|AVR.Build.0 = Debug|AVR
 		{0A84B065-0101-4715-BF89-280E46E4F70E}.Release|AVR.ActiveCfg = Release|AVR
 		{0A84B065-0101-4715-BF89-280E46E4F70E}.Release|AVR.Build.0 = Release|AVR
+		{31FE8F68-FD86-49E5-81EF-1C867CA69DD9}.Debug|AVR.ActiveCfg = Debug|AVR
+		{31FE8F68-FD86-49E5-81EF-1C867CA69DD9}.Debug|AVR.Build.0 = Debug|AVR
+		{31FE8F68-FD86-49E5-81EF-1C867CA69DD9}.Release|AVR.ActiveCfg = Release|AVR
+		{31FE8F68-FD86-49E5-81EF-1C867CA69DD9}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
