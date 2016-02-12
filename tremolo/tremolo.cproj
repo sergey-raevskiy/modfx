@@ -110,6 +110,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="map_exp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="map_exp.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="tremolo.c">
       <SubType>compile</SubType>
     </Compile>
