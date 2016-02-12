@@ -5,6 +5,7 @@
 #include <util/delay.h>
 
 #include "map_exp.h"
+#include "wave.h"
 
 #define unlikely(x) __builtin_expect(x, 0)
 
@@ -14,25 +15,6 @@ enum {
     ADC_DEPTH,
     ADC_WAVE
 };
-
-typedef enum {
-    WF_RAMPUP,
-    WF_RAMPDOWN,
-    WF_SQUARE,
-    WF_TRIANGLE,
-    WF_RES2,
-    WF_RES3,
-    WF_RES4,
-    WF_RES5,
-    WF_RES6,
-    WF_RES7,
-    WF_RES8,
-    WF_RES9,
-
-    WF_TOTAL
-} waveform_t;
-
-_Static_assert(WF_TOTAL == 12, "Total waveforms mismatch");
 
 static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
 {
@@ -47,25 +29,6 @@ static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
 } while (0)
 
 static uint16_t tempo = 400;
-static waveform_t wave = WF_RAMPUP;
-
-static uint8_t wave_func(uint8_t i)
-{
-    switch (wave)
-    {
-    case WF_RAMPUP:
-        return i;
-    case WF_RAMPDOWN:
-        return ~i;
-    case WF_SQUARE:
-        return (i & 0x80) ? 0 : 0xff;
-    case WF_TRIANGLE:
-        return (i & 0x80) ? (0xff - (i << 1)) : ((i - 0x80) << 1);
-    default:
-        return i;
-    }
-}
-
 static uint8_t tapst = 0;
 
 static struct {
@@ -185,6 +148,9 @@ int main(void)
     // Enable ADC.
     ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
+    // Set initial waveform.
+    wave_set(WF_RAMPUP);
+
     reset_cycle();
     sei();
 
@@ -207,6 +173,6 @@ int main(void)
         }
 
         // Waveform
-        wave = map_rotary(adc_read(ADC_WAVE), WF_TOTAL);
+        wave_set(map_rotary(adc_read(ADC_WAVE), WF_TOTAL));
     }
 }
