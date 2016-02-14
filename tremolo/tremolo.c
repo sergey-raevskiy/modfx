@@ -119,15 +119,22 @@ static uint8_t adc_read(uint8_t nadc)
     return ADCH;
 }
 
-static uint8_t map_rotary(uint8_t val, uint8_t npos)
+#define ROTARY_CMP_VAL(pos, npos) ((255 * pos + 127) / (npos - 1))
+
+static void set_wave()
 {
-    uint8_t pos;
-    for (pos = 0; pos < npos; pos++) {
-        uint16_t cmp = (255 * pos + 127) / (npos - 1);
-        if (val < cmp)
-            break;
-    }
-    return pos;
+    uint8_t adc = adc_read(ADC_WAVE);
+
+    if (adc < ROTARY_CMP_VAL(0, 12))
+        wave_set(WF_RAMPUP);
+    else if (adc < ROTARY_CMP_VAL(1, 12))
+        wave_set(WF_RAMPDOWN);
+    else if (adc < ROTARY_CMP_VAL(2, 12))
+        wave_set(WF_SQUARE);
+    else if (adc < ROTARY_CMP_VAL(3, 12))
+        wave_set(WF_TRIANGLE);
+    else
+        wave_set(WF_RAMPUP);
 }
 
 int main(void)
@@ -173,6 +180,6 @@ int main(void)
         }
 
         // Waveform
-        wave_set(map_rotary(adc_read(ADC_WAVE), WF_TOTAL));
+        set_wave();
     }
 }
