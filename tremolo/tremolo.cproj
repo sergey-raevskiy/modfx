@@ -110,6 +110,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="defs.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="map_exp.h">
       <SubType>compile</SubType>
     </Compile>

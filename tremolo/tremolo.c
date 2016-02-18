@@ -4,10 +4,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "defs.h"
 #include "map_exp.h"
 #include "wave.h"
-
-#define unlikely(x) __builtin_expect(x, 0)
 
 enum {
     ADC_RATE,
