@@ -20,13 +20,6 @@ static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
     return (x - xmin) * (ymax - ymin) / (xmax - xmin) + ymin;
 }
 
-#define set_bit(reg, bit, state) do { \
-    if (state)                        \
-        reg |= (1 << bit);            \
-    else                              \
-        reg &= ~(1 << bit);           \
-} while (0)
-
 static uint8_t tapst = 0;
 
 static uint24_t phase;
@@ -48,7 +41,11 @@ ISR(TIMER1_CMPA_vect)
 
     // FIXME: Reset cycle?
 
-    set_bit(PORTB, PB0, (phase_hi < 0x3f) || tapst);
+    /* Set the tap led state. */
+    if ((phase_hi < 0x3f) || tapst)
+        PORTB |= (1 << PB0);
+    else
+        PORTB &= ~(1 << PB0);
 }
 
 SIGNAL(TIMER0_OVF0_vect)
