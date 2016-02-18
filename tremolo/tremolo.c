@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sfr_defs.h>
 #include <util/delay.h>
 
 #include "defs.h"
@@ -102,7 +103,7 @@ static uint8_t adc_read(uint8_t nadc)
 {
     ADMUX = (1 <<ADLAR) | nadc;
     ADCSR |= (1 << ADSC);
-    while (ADCSR & (1 << ADSC));
+    loop_until_bit_is_set(ADCSR, ADSC);
     return ADCH;
 }
 
