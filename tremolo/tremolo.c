@@ -129,23 +129,29 @@ static void set_wave()
 
 int main(void)
 {
-    // Configuring TIMER1 as PWM driver for vactrol.
+    /* Configuring TIMER1 as PWM driver for vactrol at full CK (8MHz). */
     TCCR1B  = (1 << CS10) | (1 << CTC1);
     TCCR1A = (1 << PWM1A) | (1 << COM1A1);
     OCR1C = 0xff;
 
+    /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
     TCCR0 = (1 << CS01);
 
-    // Enable OCRA interrupt.
+    /* Enable output compare interrupt for PWM and overflow interrupt
+       for TIMER0. */
     TIMSK = (1 << OCIE1A) | (1 << TOIE0);
 
+    /* Set pullup for tap button. */
     PORTB = (1 << PB2);
+
+    /* Set PB0 (tap led) and PB1 (PWM output) as outputs. */
     DDRB = (1 << PB0) | (1 << PB1);
 
-    // Enable ADC.
+    /* Enable ADC at CK/128 clock. Not sure if this is best possible option,
+       but it works. */
     ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
-    // Set initial waveform.
+    /* Set ramp-up waveform by default. */
     wave_set(WF_RAMPUP);
 
     phase = 0;
