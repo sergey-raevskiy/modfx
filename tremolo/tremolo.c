@@ -27,38 +27,27 @@ static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
         reg &= ~(1 << bit);           \
 } while (0)
 
-static uint16_t tempo = 400;
 static uint8_t tapst = 0;
 
-static struct {
-    uint8_t y;
-    uint16_t next;
-    uint16_t cnt;
-} lfo;
+static uint24_t phase;
+static uint24_t phase_inc;
 
-static void reset_cycle()
-{
-    lfo.y = 0;
-    lfo.cnt = 0;
-    lfo.next = 0;
-}
-
+/* Occurs when PWM overflow happens. */
 ISR(TIMER1_CMPA_vect)
 {
-    if (unlikely(lfo.cnt >= tempo))
-        reset_cycle();
+    /* Use the higest byte as phase for wave_func(). */
+    uint8_t phase_hi = phase >> 16;
 
-    if (unlikely(lfo.cnt >= lfo.next))
-    {
-        OCR1A = map_exp(wave_func(lfo.y));
+    /* Generate new value and write it to PWM. */
+    uint8_t val = wave_func(phase_hi);
+    OCR1A = map_exp(val);
 
-        lfo.y++;
-        lfo.next = map_lin(lfo.y, 0, 255, 0, tempo);
-    }
+    /* Increment the phase. */
+    phase = phase + phase_inc;
 
-    set_bit(PORTB, PB0, (lfo.y < 0x3f) || tapst);
+    // FIXME: Reset cycle?
 
-    lfo.cnt++;
+    set_bit(PORTB, PB0, (phase_hi < 0x3f) || tapst);
 }
 
 SIGNAL(TIMER0_OVF0_vect)
@@ -80,12 +69,13 @@ SIGNAL(TIMER0_OVF0_vect)
         cli();
 
         // Sync.
-        reset_cycle();
+        phase = 0;
 
         if (tapst == 7)
         {
             // Last lap. Set the new tempo.
-            tempo = cnt * 8;
+            // FIXME
+            //tempo = cnt * 8;
         }
         else
         {
@@ -157,10 +147,11 @@ int main(void)
     // Set initial waveform.
     wave_set(WF_RAMPUP);
 
-    reset_cycle();
+    phase = 0;
     sei();
 
-    tempo = 1;
+    // FIXME: Initial value.
+    phase_inc = 100;
     uint8_t old_rate = 0;
 
     while (1)
@@ -174,7 +165,7 @@ int main(void)
             old_rate = new_rate;
 
             cli();
-            tempo = new_tempo;
+            phase_inc = new_tempo;
             sei();
         }
 
