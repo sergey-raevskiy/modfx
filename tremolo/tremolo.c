@@ -32,7 +32,8 @@ static uint8_t tapst = 0;
 static uint24_t phase;
 static uint24_t phase_inc;
 
-/* Occurs when PWM overflow happens. */
+/* Occurs when PWM overflow happens. Since PWM is running at full CK, this
+   interrupt occurs at 8 MHz / 256 = 31250 Hz. */
 ISR(TIMER1_CMPA_vect)
 {
     /* Use the higest byte as phase for wave_func(). */
