@@ -6,7 +6,6 @@
 #include <util/delay.h>
 
 #include "defs.h"
-#include "map_exp.h"
 #include "wave.h"
 
 enum {
