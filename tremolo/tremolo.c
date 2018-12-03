@@ -33,8 +33,7 @@ ISR(TIMER1_CMPA_vect)
     uint8_t phase_hi = phase >> 16;
 
     /* Generate new value and write it to PWM. */
-    uint8_t val = wave_func(phase_hi);
-    OCR1A = map_exp(val);
+    OCR1A = wave_func(phase_hi);
 
     /* Increment the phase. */
     phase = phase + phase_inc;
@@ -101,8 +100,8 @@ SIGNAL(TIMER0_OVF0_vect)
 static uint8_t adc_read(uint8_t nadc)
 {
     ADMUX = (1 <<ADLAR) | nadc;
-    ADCSR |= (1 << ADSC);
-    loop_until_bit_is_set(ADCSR, ADSC);
+    //ADCSR |= (1 << ADSC);
+    //loop_until_bit_is_set(ADCSR, ADSC);
     return ADCH;
 }
 
@@ -113,43 +112,43 @@ static void set_wave()
     uint8_t adc = adc_read(ADC_WAVE);
 
     if (adc < ROTARY_CMP_VAL(0, 12))
-        wave_set(WF_RAMPUP);
+        wf_set_rampup();
     else if (adc < ROTARY_CMP_VAL(1, 12))
-        wave_set(WF_RAMPDOWN);
+        wf_set_rampdown();
     else if (adc < ROTARY_CMP_VAL(2, 12))
-        wave_set(WF_SQUARE);
+        wf_set_square();
     else if (adc < ROTARY_CMP_VAL(3, 12))
-        wave_set(WF_TRIANGLE);
+        wf_set_triangle();
     else
-        wave_set(WF_RAMPUP);
+        wf_set_rampup();
 }
 
 int main(void)
 {
-    /* Configuring TIMER1 as PWM driver for vactrol at full CK (8MHz). */
-    TCCR1B  = (1 << CS10) | (1 << CTC1);
-    TCCR1A = (1 << PWM1A) | (1 << COM1A1);
-    OCR1C = 0xff;
-
-    /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
-    TCCR0 = (1 << CS01);
-
-    /* Enable output compare interrupt for PWM and overflow interrupt
-       for TIMER0. */
-    TIMSK = (1 << OCIE1A) | (1 << TOIE0);
-
-    /* Set pullup for tap button. */
-    PORTB = (1 << PB2);
-
-    /* Set PB0 (tap led) and PB1 (PWM output) as outputs. */
-    DDRB = (1 << PB0) | (1 << PB1);
-
-    /* Enable ADC at CK/128 clock. Not sure if this is best possible option,
-       but it works. */
-    ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+    // /* Configuring TIMER1 as PWM driver for vactrol at full CK (8MHz). */
+    // TCCR1B  = (1 << CS10) | (1 << CTC1);
+    // TCCR1A = (1 << PWM1A) | (1 << COM1A1);
+    // OCR1C = 0xff;
+    // 
+    // /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
+    // TCCR0 = (1 << CS01);
+    // 
+    // /* Enable output compare interrupt for PWM and overflow interrupt
+    //    for TIMER0. */
+    // TIMSK = (1 << OCIE1A) | (1 << TOIE0);
+    // 
+    // /* Set pullup for tap button. */
+    // PORTB = (1 << PB2);
+    // 
+    // /* Set PB0 (tap led) and PB1 (PWM output) as outputs. */
+    // DDRB = (1 << PB0) | (1 << PB1);
+    // 
+    // /* Enable ADC at CK/128 clock. Not sure if this is best possible option,
+    //    but it works. */
+    // ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 
     /* Set ramp-up waveform by default. */
-    wave_set(WF_RAMPUP);
+    wf_set_rampup();
 
     phase = 0;
     sei();

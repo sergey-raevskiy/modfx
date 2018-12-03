@@ -5,7 +5,7 @@
     <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>{0a84b065-0101-4715-bf89-280e46e4f70e}</ProjectGuid>
-    <avrdevice>ATtiny26</avrdevice>
+    <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>C</Language>
@@ -38,7 +38,8 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.stk500</avrtool>
+    <avrtool>
+    </avrtool>
     <com_atmel_avrdbg_tool_stk500>
       <ToolOptions>
         <InterfaceProperties>

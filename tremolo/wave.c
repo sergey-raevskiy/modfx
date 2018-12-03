@@ -1,25 +1,32 @@
 #include "wave.h"
 
-static waveform_t wave;
+/* Current waveform buffer. */
+uint8_t wf_wf[256];
 
-void wave_set(waveform_t w)
+void wf_set_rampup()
 {
-    wave = w;
+    for (uint16_t i = 0; i < 256; i++)
+        wf_wf[i] = i;
 }
 
-uint8_t wave_func(uint8_t i)
+void wf_set_rampdown()
 {
-    switch (wave)
-    {
-    case WF_RAMPUP:
-        return i;
-    case WF_RAMPDOWN:
-        return ~i;
-    case WF_SQUARE:
-        return (i & 0x80) ? 0 : 0xff;
-    case WF_TRIANGLE:
-        return (i & 0x80) ? (0xff - (i << 1)) : ((i - 0x80) << 1);
-    default:
-        return i;
-    }
+    for (uint16_t i = 0; i < 256; i++)
+        wf_wf[i] = 0xFF - i;
+}
+
+void wf_set_square()
+{
+    for (uint16_t i = 0; i < 128; i++)
+        wf_wf[i] = 0;
+    for (uint16_t i = 128; i < 256; i++)
+        wf_wf[i] = 0xFF;
+}
+
+void wf_set_triangle()
+{
+    for (uint16_t i = 0; i < 128; i++)
+        wf_wf[i] = 255 - (i * 2);
+    for (uint16_t i = 0; i < 128; i++)
+        wf_wf[i + 128] = i * 2;
 }
