@@ -12,7 +12,7 @@ static uint24_t phase;
 static uint24_t phase_inc;
 
 /* Occurs when PWM overflow happens. Since PWM is running at full CK, this
-   interrupt occurs at 8 MHz / 256 = 31250 Hz. */
+   interrupt occurs at 16 MHz / 256 = 62500 Hz. */
 ISR(TIMER0_OVF_vect)
 {
     /* Use the higest byte as phase for wave_func(). */
