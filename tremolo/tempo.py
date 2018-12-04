@@ -23,7 +23,7 @@ for i in range(256):
 
 s = ""
 for i in range(256):
-    if (i % 16 == 0):
+    if (i % 8 == 0):
         s = s + "\n"
     s = s + "%d, " % (bpm2icr(bpm(i)))
 
