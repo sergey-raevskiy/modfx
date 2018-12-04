@@ -16,7 +16,7 @@ static uint24_t phase_inc;
 
 /* Occurs when PWM overflow happens. Since PWM is running at full CK, this
    interrupt occurs at 8 MHz / 256 = 31250 Hz. */
-ISR(TIMER1_CMPA_vect)
+ISR(TIMER0_COMPA_vect)
 {
     /* Use the higest byte as phase for wave_func(). */
     uint8_t phase_hi = phase >> 16;
@@ -36,55 +36,55 @@ ISR(TIMER1_CMPA_vect)
         PORTB &= ~(1 << PB0);
 }
 
-SIGNAL(TIMER0_OVF0_vect)
-{
-    static uint16_t cnt = 0;
-    static uint8_t btst = 0;
-
-    btst <<= 1;
-    btst |= (PINB & (1 << PB2)) ? 0 : 1;
-
-    if (tapst && cnt >= 8192)
-        tapst = 0;
-
-    else if (!(tapst & 1) && btst == 0xff)
-    {
-        // Tap button pressed.
-        tapst++;
-
-        cli();
-
-        // Sync.
-        phase = 0;
-
-        if (tapst == 7)
-        {
-            // Last lap. Set the new tempo.
-            // FIXME
-            //tempo = cnt * 8;
-        }
-        else
-        {
-            // Reset the counter.
-            cnt = 0;
-        }
-
-        sei();
-    }
-    else if ((tapst & 1) && btst == 0x00)
-    {
-        // Button unpressed.
-        tapst++;
-
-        // Sequence completed.
-        if (tapst == 8)
-        {
-            tapst = 0;
-        }
-    }
-
-    cnt++;
-}
+//SIGNAL(TIMER0_OVF0_vect)
+//{
+//    static uint16_t cnt = 0;
+//    static uint8_t btst = 0;
+//
+//    btst <<= 1;
+//    btst |= (PINB & (1 << PB2)) ? 0 : 1;
+//
+//    if (tapst && cnt >= 8192)
+//        tapst = 0;
+//
+//    else if (!(tapst & 1) && btst == 0xff)
+//    {
+//        // Tap button pressed.
+//        tapst++;
+//
+//        cli();
+//
+//        // Sync.
+//        phase = 0;
+//
+//        if (tapst == 7)
+//        {
+//            // Last lap. Set the new tempo.
+//            // FIXME
+//            //tempo = cnt * 8;
+//        }
+//        else
+//        {
+//            // Reset the counter.
+//            cnt = 0;
+//        }
+//
+//        sei();
+//    }
+//    else if ((tapst & 1) && btst == 0x00)
+//    {
+//        // Button unpressed.
+//        tapst++;
+//
+//        // Sequence completed.
+//        if (tapst == 8)
+//        {
+//            tapst = 0;
+//        }
+//    }
+//
+//    cnt++;
+//}
 
 static uint8_t adc_read(uint8_t nadc)
 {
