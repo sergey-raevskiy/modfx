@@ -121,6 +121,8 @@ static void set_wave()
             wf_set_square();
         else if (adc < ROTARY_CMP_VAL(3, 12))
             wf_set_triangle();
+        else if (adc < ROTARY_CMP_VAL(4, 12))
+            wf_set_sine();
         else
             wf_set_rampup();
     }
