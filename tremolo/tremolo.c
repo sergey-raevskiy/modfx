@@ -28,7 +28,8 @@ ISR(TIMER0_OVF_vect)
     /* We have only 256 CPU cycles, so we should be quick. */
 
     /* Use the higest byte as phase for wave_func(). */
-    uint8_t phase_hi = phase >> 16;
+    /* Note: avr-gcc is so stupid and generates bullshit on phase >> 16 */
+    uint8_t phase_hi = ((uint8_t *) &phase)[2];
 
     /* Generate new value and write it to PWM. */
     OCR0A = wave_func(phase_hi);
