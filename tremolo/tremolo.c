@@ -19,7 +19,7 @@ ISR(TIMER0_OVF_vect)
     uint8_t phase_hi = phase >> 16;
 
     /* Generate new value and write it to PWM. */
-    OCR1A = wave_func(phase_hi);
+    OCR0A = wave_func(phase_hi);
 
     /* Increment the phase. */
     phase = phase + phase_inc;
