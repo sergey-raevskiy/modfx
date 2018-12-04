@@ -17,6 +17,12 @@
 #define BPM_LED_ON()  (BPM_LED_PORT |= (1 << BPM_LED_PIN))
 #define BPM_LED_OFF() (BPM_LED_PORT &= ~(1 << BPM_LED_PIN))
 
+/* Tap button */
+#define TAP_TEMPO_PORT   PORTB
+#define TAP_TEMPO_DDR    DDRB
+#define TAP_TEMPO_PIN    PINB4
+#define TAP_IS_PRESSED() bit_is_clear(PINB, TAP_TEMPO_PIN)
+
 static uint8_t tapst = 0;
 
 static uint8_t phase;
@@ -141,6 +147,10 @@ static void set_note()
 static void init_gpio()
 {
     BPM_LED_DDR |= (1 << BPM_LED_PIN);
+
+    /* Clear DDR and enable pull-up. */
+    TAP_TEMPO_DDR &= ~(1 << TAP_TEMPO_PIN);
+    TAP_TEMPO_PORT |= (1 << TAP_TEMPO_PIN);
 }
 
 static void init_timers()
