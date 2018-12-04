@@ -23,8 +23,10 @@
 #define TAP_TEMPO_PIN    PINB4
 #define TAP_IS_PRESSED() bit_is_clear(PINB, TAP_TEMPO_PIN)
 
+/* Tap button state. */
 static uint8_t tapst = 0;
 
+/* LFO phase. */
 static uint8_t phase;
 
 /* Use 16-bit timer/counter for phase increment. */
