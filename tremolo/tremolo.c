@@ -6,6 +6,13 @@
 #include "defs.h"
 #include "wave.h"
 
+/* BPM led */
+#define BPM_LED_PORT  PORTB
+#define BPM_LED_DDR   DDRB
+#define BPM_LED_PIN   PINB5
+#define BPM_LED_ON()  (BPM_LED_PORT |= (1 << BPM_LED_PIN))
+#define BPM_LED_OFF() (BPM_LED_PORT &= ~(1 << BPM_LED_PIN))
+
 static uint8_t tapst = 0;
 
 static uint24_t phase;
@@ -28,9 +35,9 @@ ISR(TIMER0_OVF_vect)
 
     /* Set the tap led state. */
     if ((phase_hi < 0x3f) || tapst)
-        PORTB |= (1 << PB0);
+        BPM_LED_ON();
     else
-        PORTB &= ~(1 << PB0);
+        BPM_LED_OFF();
 }
 
 //SIGNAL(TIMER0_OVF0_vect)
@@ -111,6 +118,11 @@ static void set_note()
     /* */
 }
 
+static void init_gpio()
+{
+    BPM_LED_DDR |= (1 << BPM_LED_PIN);
+}
+
 static void init_timers()
 {
     /* PWM driver. */
@@ -129,6 +141,7 @@ static void init_timers()
 
 int main(void)
 {
+    init_gpio();
     init_timers();
     // 
     // /* Set pullup for tap button. */
