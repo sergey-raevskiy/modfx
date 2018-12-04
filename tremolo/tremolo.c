@@ -16,7 +16,7 @@ static uint24_t phase_inc;
 
 /* Occurs when PWM overflow happens. Since PWM is running at full CK, this
    interrupt occurs at 8 MHz / 256 = 31250 Hz. */
-ISR(TIMER0_COMPA_vect)
+ISR(TIMER0_OVF_vect)
 {
     /* Use the higest byte as phase for wave_func(). */
     uint8_t phase_hi = phase >> 16;
@@ -122,19 +122,25 @@ static void set_note()
     /* */
 }
 
-int main(void)
+static void init_timers()
 {
-    // /* Configuring TIMER1 as PWM driver for vactrol at full CK (8MHz). */
-    // TCCR1B  = (1 << CS10) | (1 << CTC1);
-    // TCCR1A = (1 << PWM1A) | (1 << COM1A1);
-    // OCR1C = 0xff;
-    // 
+    /* PWM driver. */
+    TCCR0A = (1 << COM0A1) | (1 << WGM00) | (1 << WGM01);
+    TCCR0B = (1 << CS00);
+
     // /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
     // TCCR0 = (1 << CS01);
     // 
     // /* Enable output compare interrupt for PWM and overflow interrupt
     //    for TIMER0. */
     // TIMSK = (1 << OCIE1A) | (1 << TOIE0);
+
+    TIMSK0 = (1 << TOIE0);
+}
+
+int main(void)
+{
+    init_timers();
     // 
     // /* Set pullup for tap button. */
     // PORTB = (1 << PB2);
