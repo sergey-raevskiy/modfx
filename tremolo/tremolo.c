@@ -122,7 +122,13 @@ static void set_tempo()
 
 static void set_note()
 {
-    /* */
+    /* Note lengths:
+        1/1
+        1/2
+        1/4
+        1/8
+        1/16 ???
+      */
 }
 
 static void init_gpio()
