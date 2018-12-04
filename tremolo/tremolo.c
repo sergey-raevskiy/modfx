@@ -204,13 +204,6 @@ int main(void)
 {
     init_gpio();
     init_timers();
-    // 
-    // /* Set pullup for tap button. */
-    // PORTB = (1 << PB2);
-    // 
-    // /* Set PB0 (tap led) and PB1 (PWM output) as outputs. */
-    // DDRB = (1 << PB0) | (1 << PB1);
-    // 
     adc_init();
 
     /* Set ramp-up waveform by default. */
