@@ -174,13 +174,6 @@ static void init_timers()
     TCCR0B = (1 << CS00);
     DDRB |= (1 << DDB2);
 
-    // /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
-    // TCCR0 = (1 << CS01);
-    // 
-    // /* Enable output compare interrupt for PWM and overflow interrupt
-    //    for TIMER0. */
-    // TIMSK = (1 << OCIE1A) | (1 << TOIE0);
-
     /* Configure timer1 as plain timer. Ck/1, TOP value is ICR1. */
     ICR1 = 10000;
     TCCR1A = (1 << WGM11);
@@ -188,6 +181,12 @@ static void init_timers()
 
     /* Enable timer1 overflow interrupt. */
     TIMSK1 = (1 << TOIE1);
+
+    /* Configure timer2 as plain timer. Ck/8, TOP value is 0xff. */
+    TCCR2B = (1 << CS21);
+
+    /* Enable timer2 overflow interrupt. */
+    TIMSK2 = (1 << TOIE2);
 }
 
 int main(void)
