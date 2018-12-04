@@ -128,9 +128,10 @@ static void init_gpio()
 
 static void init_timers()
 {
-    /* PWM driver. */
+    /* PWM driver. Use OC1A (PB2) as output. */
     TCCR0A = (1 << COM0A1) | (1 << WGM00) | (1 << WGM01);
     TCCR0B = (1 << CS00);
+    DDRB |= (1 << DDB2);
 
     // /* Configure TIMER0 for regular operation at CK/8 (1MHz). */
     // TCCR0 = (1 << CS01);
