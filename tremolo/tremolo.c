@@ -209,7 +209,6 @@ int main(void)
     /* Set ramp-up waveform by default. */
     wf_set_rampup();
 
-    phase = 0;
     sei();
 
     while (1)
