@@ -86,14 +86,6 @@ ISR(TIMER0_OVF_vect)
 //    cnt++;
 //}
 
-static uint8_t adc_read(uint8_t nadc)
-{
-    ADMUX = (1 <<ADLAR) | nadc;
-    //ADCSR |= (1 << ADSC);
-    //loop_until_bit_is_set(ADCSR, ADSC);
-    return ADCH;
-}
-
 #define ROTARY_CMP_VAL(pos, npos) ((255 * pos + 127) / (npos - 1))
 
 static void set_wave()
