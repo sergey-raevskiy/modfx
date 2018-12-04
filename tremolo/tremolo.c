@@ -186,7 +186,7 @@ static void init_timers()
     DDRB |= (1 << DDB2);
 
     /* Configure timer1 as plain timer. Ck/1, TOP value is ICR1. */
-    ICR1 = 10000;
+    ICR1 = 24932; /* 150 BPM */
     TCCR1A = (1 << WGM11);
     TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 
