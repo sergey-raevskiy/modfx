@@ -28,6 +28,7 @@ static uint8_t tapst = 0;
 static uint8_t phase;
 
 /* Use 16-bit timer/counter for phase increment. */
+/* freq = tempo / 60 * 256 */
 ISR(TIMER1_OVF_vect)
 {
     /* Generate new value and write it to PWM. */
@@ -42,55 +43,68 @@ ISR(TIMER1_OVF_vect)
     phase++;
 }
 
-//SIGNAL(TIMER0_OVF0_vect)
-//{
-//    static uint16_t cnt = 0;
-//    static uint8_t btst = 0;
-//
-//    btst <<= 1;
-//    btst |= (PINB & (1 << PB2)) ? 0 : 1;
-//
-//    if (tapst && cnt >= 8192)
-//        tapst = 0;
-//
-//    else if (!(tapst & 1) && btst == 0xff)
-//    {
-//        // Tap button pressed.
-//        tapst++;
-//
-//        cli();
-//
-//        // Sync.
-//        phase = 0;
-//
-//        if (tapst == 7)
-//        {
-//            // Last lap. Set the new tempo.
-//            // FIXME
-//            //tempo = cnt * 8;
-//        }
-//        else
-//        {
-//            // Reset the counter.
-//            cnt = 0;
-//        }
-//
-//        sei();
-//    }
-//    else if ((tapst & 1) && btst == 0x00)
-//    {
-//        // Button unpressed.
-//        tapst++;
-//
-//        // Sequence completed.
-//        if (tapst == 8)
-//        {
-//            tapst = 0;
-//        }
-//    }
-//
-//    cnt++;
-//}
+/* Tap-tempo monitor routine. */
+/* freq = fcpu / 256 / 8 = 7812,5 Hz */
+ISR(TIMER2_OVF_vect)
+{
+    static uint16_t tap_counter = 0;
+    static uint8_t tap_debounce = 0;
+
+    /* Increment the tap counter. */
+    tap_counter++;
+
+    /* Update debounce vector. */
+    tap_debounce <<= 1;
+    tap_debounce |= TAP_IS_PRESSED() ? 1 : 0;
+
+    if (tapst != 0 && tap_counter >= 8192)
+    {
+        /* Prevent overflow. */
+        tapst = 0;
+    }
+
+    switch (tapst)
+    {
+    case 0:
+        if (tap_debounce == 0xff)
+        {
+            /* Tap button pressed first time. */
+
+            /* Sync. */
+            phase = 0;
+
+            /* Reset counter. */
+            tap_counter = 0;
+
+            /* Go to next state. */
+            tapst++;
+        }
+        break;
+    case 1:
+        if (tap_debounce == 0x00)
+        {
+            /* Tap button unpressed. */
+            tapst++;
+        }
+        break;
+    case 2:
+        if (tap_debounce == 0xff)
+        {
+            /* Tap button pressed second time. */
+
+            /* Set new tempo. */
+            ICR1 = tap_counter * 8;
+
+            tapst++;
+        }
+    case 3:
+        if (tap_debounce == 0x00)
+        {
+            tapst = 0;
+        }
+        break;
+    }
+}
 
 static void set_wave()
 {
