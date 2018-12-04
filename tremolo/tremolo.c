@@ -6,6 +6,9 @@
 #include "defs.h"
 #include "wave.h"
 
+/* Helper for rotary switches. */
+#define ROTARY_CMP_VAL(pos, npos) ((255 * pos + 127) / (npos - 1))
+
 /* BPM led */
 #define BPM_LED_PORT  PORTB
 #define BPM_LED_DDR   DDRB
@@ -89,8 +92,6 @@ ISR(TIMER0_OVF_vect)
 //
 //    cnt++;
 //}
-
-#define ROTARY_CMP_VAL(pos, npos) ((255 * pos + 127) / (npos - 1))
 
 static void set_wave()
 {
