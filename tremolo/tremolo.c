@@ -4,7 +4,6 @@
 #include <avr/pgmspace.h>
 
 #include "adc.h"
-#include "defs.h"
 #include "wave.h"
 
 /* Helper for rotary switches. */

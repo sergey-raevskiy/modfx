@@ -117,9 +117,6 @@
     <Compile Include="adc.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="defs.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="tremolo.c">
       <SubType>compile</SubType>
     </Compile>
