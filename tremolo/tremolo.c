@@ -25,6 +25,8 @@ static uint24_t phase_inc;
    interrupt occurs at 16 MHz / 256 = 62500 Hz. */
 ISR(TIMER0_OVF_vect)
 {
+    /* We have only 256 CPU cycles, so we should be quick. */
+
     /* Use the higest byte as phase for wave_func(). */
     uint8_t phase_hi = phase >> 16;
 
