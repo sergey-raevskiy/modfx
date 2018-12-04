@@ -113,7 +113,11 @@ static void set_wave()
 
 static void set_tempo()
 {
-    /* */
+    /* TODO:
+        0   -> ~80 BPM
+        128 -> ~150 BPM
+        255 -> ~300 BPM
+    */
 }
 
 static void set_note()
