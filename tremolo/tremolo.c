@@ -18,32 +18,21 @@
 
 static uint8_t tapst = 0;
 
-static uint24_t phase;
-static uint24_t phase_inc;
+static uint8_t phase;
 
-/* Occurs when PWM overflow happens. Since PWM is running at full CK, this
-   interrupt occurs at 16 MHz / 256 = 62500 Hz. */
-ISR(TIMER0_OVF_vect)
+/* Use 16-bit timer/counter for phase increment. */
+ISR(TIMER1_OVF_vect)
 {
-    /* We have only 256 CPU cycles, so we should be quick. */
-
-    /* Use the higest byte as phase for wave_func(). */
-    /* Note: avr-gcc is so stupid and generates bullshit on phase >> 16 */
-    uint8_t phase_hi = ((uint8_t *) &phase)[2];
-
     /* Generate new value and write it to PWM. */
-    OCR0A = wave_func(phase_hi);
-
-    /* Increment the phase. */
-    phase = phase + phase_inc;
-
-    // FIXME: Reset cycle?
+    OCR0A = wave_func(phase);
 
     /* Set the tap led state. */
-    if ((phase_hi < 0x3f) || tapst)
+    if ((phase < 0x3f) || tapst)
         BPM_LED_ON();
     else
         BPM_LED_OFF();
+
+    phase++;
 }
 
 //SIGNAL(TIMER0_OVF0_vect)
@@ -150,7 +139,13 @@ static void init_timers()
     //    for TIMER0. */
     // TIMSK = (1 << OCIE1A) | (1 << TOIE0);
 
-    TIMSK0 = (1 << TOIE0);
+    /* Configure timer1 as plain timer. Ck/1, TOP value is ICR1. */
+    ICR1 = 10000;
+    TCCR1A = (1 << WGM11);
+    TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
+
+    /* Enable timer1 overflow interrupt. */
+    TIMSK1 = (1 << TOIE1);
 }
 
 int main(void)
@@ -171,8 +166,6 @@ int main(void)
 
     phase = 0;
     sei();
-
-    phase_inc = 100;
 
     while (1)
     {
