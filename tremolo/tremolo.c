@@ -108,18 +108,21 @@ ISR(TIMER2_OVF_vect)
 
 static void set_wave()
 {
-    uint8_t adc = adc_get(ADC_MODE);
+    if (adc_is_changed(ADC_MODE))
+    {
+        uint8_t adc = adc_get(ADC_MODE);
 
-    if (adc < ROTARY_CMP_VAL(0, 12))
-        wf_set_rampup();
-    else if (adc < ROTARY_CMP_VAL(1, 12))
-        wf_set_rampdown();
-    else if (adc < ROTARY_CMP_VAL(2, 12))
-        wf_set_square();
-    else if (adc < ROTARY_CMP_VAL(3, 12))
-        wf_set_triangle();
-    else
-        wf_set_rampup();
+        if (adc < ROTARY_CMP_VAL(0, 12))
+            wf_set_rampup();
+        else if (adc < ROTARY_CMP_VAL(1, 12))
+            wf_set_rampdown();
+        else if (adc < ROTARY_CMP_VAL(2, 12))
+            wf_set_square();
+        else if (adc < ROTARY_CMP_VAL(3, 12))
+            wf_set_triangle();
+        else
+            wf_set_rampup();
+    }
 }
 
 static void set_tempo()
@@ -144,7 +147,10 @@ static void set_tempo()
         13562, 13488, 13415, 13342, 13270, 13198, 13126, 13055, 12984, 12914, 12844, 12774, 12705, 12636, 12568, 12500,
     };
 
-    ICR1 = pgm_read_word(&icr[adc_get(ADC_TEMPO)]);
+    if (adc_is_changed(ADC_TEMPO))
+    {
+        ICR1 = pgm_read_word(&icr[adc_get(ADC_TEMPO)]);
+    }
 }
 
 static void set_note()
@@ -156,6 +162,11 @@ static void set_note()
         1/8
         1/16 ???
       */
+
+    if (adc_is_changed(ADC_NOTE))
+    {
+        // TODO
+    }
 }
 
 static void init_gpio()
@@ -210,11 +221,8 @@ int main(void)
 
     while (1)
     {
-        if (adc_is_changed(ADC_MODE))
-            set_wave();
-        if (adc_is_changed(ADC_TEMPO))
-            set_tempo();
-        if (adc_is_changed(ADC_NOTE))
-            set_note();
+        set_wave();
+        set_tempo();
+        set_note();
     }
 }
