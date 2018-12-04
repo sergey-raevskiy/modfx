@@ -5,20 +5,9 @@
 #include <avr/sfr_defs.h>
 #include <util/delay.h>
 
+#include "adc.h"
 #include "defs.h"
 #include "wave.h"
-
-enum {
-    ADC_RATE,
-    ADC_NOTE,
-    ADC_DEPTH,
-    ADC_WAVE
-};
-
-static inline long map_lin(long x, long xmin, long xmax, long ymin, long ymax)
-{
-    return (x - xmin) * (ymax - ymin) / (xmax - xmin) + ymin;
-}
 
 static uint8_t tapst = 0;
 
@@ -109,7 +98,7 @@ static uint8_t adc_read(uint8_t nadc)
 
 static void set_wave()
 {
-    uint8_t adc = adc_read(ADC_WAVE);
+    uint8_t adc = adc_get(ADC_MODE);
 
     if (adc < ROTARY_CMP_VAL(0, 12))
         wf_set_rampup();
@@ -121,6 +110,16 @@ static void set_wave()
         wf_set_triangle();
     else
         wf_set_rampup();
+}
+
+static void set_tempo()
+{
+    /* */
+}
+
+static void set_note()
+{
+    /* */
 }
 
 int main(void)
@@ -143,9 +142,7 @@ int main(void)
     // /* Set PB0 (tap led) and PB1 (PWM output) as outputs. */
     // DDRB = (1 << PB0) | (1 << PB1);
     // 
-    // /* Enable ADC at CK/128 clock. Not sure if this is best possible option,
-    //    but it works. */
-    // ADCSR = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+    adc_init();
 
     /* Set ramp-up waveform by default. */
     wf_set_rampup();
@@ -153,26 +150,15 @@ int main(void)
     phase = 0;
     sei();
 
-    // FIXME: Initial value.
     phase_inc = 100;
-    uint8_t old_rate = 0;
 
     while (1)
     {
-        // Tempo
-        uint8_t new_rate = adc_read(ADC_RATE);
-
-        if (new_rate != old_rate)
-        {
-            uint16_t new_tempo = map_lin(0xff - new_rate, 0, 255, 255, 65535);
-            old_rate = new_rate;
-
-            cli();
-            phase_inc = new_tempo;
-            sei();
-        }
-
-        // Waveform
-        set_wave();
+        if (adc_is_changed(ADC_MODE))
+            set_wave();
+        if (adc_is_changed(ADC_TEMPO))
+            set_tempo();
+        if (adc_is_changed(ADC_NOTE))
+            set_note();
     }
 }
