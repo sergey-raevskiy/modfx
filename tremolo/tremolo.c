@@ -165,6 +165,7 @@ static void set_wave()
 
 static void set_tempo()
 {
+    /* See tempo.py */
     static const uint16_t icr[] PROGMEM =
     {
         12500, 12432, 12364, 12297, 12231, 12164, 12098, 12033,
