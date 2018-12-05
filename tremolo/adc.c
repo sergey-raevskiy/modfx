@@ -5,6 +5,7 @@
 
 /* Current ADC values. */
 static uint8_t adcvec[ADC_TOTAL];
+static uint8_t adcflags[ADC_TOTAL];
 
 void adc_init()
 {
@@ -12,7 +13,7 @@ void adc_init()
     ADCSRA = (1 << ADEN) | (1 << ADPS0) | (1 << ADPS1) | (1 << ADPS2);
 }
 
-uint8_t adc_is_changed(uint8_t adc)
+static void update_adc(uint8_t adc)
 {
     uint8_t prev = adcvec[adc];
     uint8_t val;
@@ -29,12 +30,23 @@ uint8_t adc_is_changed(uint8_t adc)
         /* If difference is above threshold save the new
            value and return true. */
         adcvec[adc] = val;
-        return 1;
+        adcflags[adc] = 1;
     }
     else
     {
-        return 0;
+        adcflags[adc] = 0;
     }
+}
+
+void adc_update_all()
+{
+    for (uint8_t adc = 0; adc < ADC_TOTAL; adc++)
+        update_adc(adc);
+}
+
+uint8_t adc_is_changed(uint8_t adc)
+{
+    return adcflags[adc];
 }
 
 uint8_t adc_get(uint8_t adc)

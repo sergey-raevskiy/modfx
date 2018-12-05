@@ -12,6 +12,7 @@ enum
 };
 
 void adc_init();
+void adc_update_all();
 uint8_t adc_is_changed(uint8_t adc);
 uint8_t adc_get(uint8_t adc);
 

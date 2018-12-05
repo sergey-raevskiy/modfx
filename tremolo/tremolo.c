@@ -142,28 +142,23 @@ ISR(TIMER2_OVF_vect)
     }
 }
 
-static void set_wave()
+static void set_wave(uint8_t val)
 {
-    if (adc_is_changed(ADC_MODE))
-    {
-        uint8_t adc = adc_get(ADC_MODE);
-
-        if (adc < ROTARY_CMP_VAL(0, 12))
-            wf_set_rampup();
-        else if (adc < ROTARY_CMP_VAL(1, 12))
-            wf_set_rampdown();
-        else if (adc < ROTARY_CMP_VAL(2, 12))
-            wf_set_square();
-        else if (adc < ROTARY_CMP_VAL(3, 12))
-            wf_set_triangle();
-        else if (adc < ROTARY_CMP_VAL(4, 12))
-            wf_set_sine();
-        else
-            wf_set_rampup();
-    }
+    if (val < ROTARY_CMP_VAL(0, 12))
+        wf_set_rampup();
+    else if (val < ROTARY_CMP_VAL(1, 12))
+        wf_set_rampdown();
+    else if (val < ROTARY_CMP_VAL(2, 12))
+        wf_set_square();
+    else if (val < ROTARY_CMP_VAL(3, 12))
+        wf_set_triangle();
+    else if (val < ROTARY_CMP_VAL(4, 12))
+        wf_set_sine();
+    else
+        wf_set_rampup();
 }
 
-static void set_tempo()
+static void set_tempo(uint8_t val)
 {
     /* See tempo.py */
     static const uint16_t icr[] PROGMEM =
@@ -202,48 +197,40 @@ static void set_tempo()
          3246,  3228,  3211,  3193,  3176,  3159,  3142,  3125,
     };
 
-    if (adc_is_changed(ADC_TEMPO))
-    {
-        ICR1 = pgm_read_word(&icr[adc_get(ADC_TEMPO)]);
-    }
+    ICR1 = pgm_read_word(&icr[val]);
 }
 
-static void set_note()
+static void set_note(uint8_t val)
 {
-    if (adc_is_changed(ADC_NOTE))
+    if (val < ROTARY_CMP_VAL(0, 6))
     {
-        uint8_t adc = adc_get(ADC_NOTE);
-
-        if (adc < ROTARY_CMP_VAL(0, 6))
-        {
-            /* 1/1 note in 16th */
-            note_multiplier = 16;
-        }
-        else if (adc < ROTARY_CMP_VAL(1, 6))
-        {
-            /* 1/2 note in 16th */
-            note_multiplier = 8;
-        }
-        else if (adc < ROTARY_CMP_VAL(2, 6))
-        {
-            /* 1/4 note in 16th */
-            note_multiplier = 4;
-        }
-        else if (adc < ROTARY_CMP_VAL(3, 6))
-        {
-            /* 1/8p note in 16th */
-            note_multiplier = 3;
-        }
-        else if (adc < ROTARY_CMP_VAL(4, 6))
-        {
-            /* 1/8 note */
-            note_multiplier = 2;
-        }
-        else
-        {
-            /* 1/16 note in 16th */
-            note_multiplier = 1;
-        }
+        /* 1/1 note in 16th */
+        note_multiplier = 16;
+    }
+    else if (val < ROTARY_CMP_VAL(1, 6))
+    {
+        /* 1/2 note in 16th */
+        note_multiplier = 8;
+    }
+    else if (val < ROTARY_CMP_VAL(2, 6))
+    {
+        /* 1/4 note in 16th */
+        note_multiplier = 4;
+    }
+    else if (val < ROTARY_CMP_VAL(3, 6))
+    {
+        /* 1/8p note in 16th */
+        note_multiplier = 3;
+    }
+    else if (val < ROTARY_CMP_VAL(4, 6))
+    {
+        /* 1/8 note */
+        note_multiplier = 2;
+    }
+    else
+    {
+        /* 1/16 note in 16th */
+        note_multiplier = 1;
     }
 }
 
@@ -289,10 +276,23 @@ int main(void)
 
     sei();
 
+    /* Set initial values. */
+    adc_update_all();
+
+    set_wave(adc_get(ADC_MODE));
+    set_tempo(adc_get(ADC_TEMPO));
+    set_note(adc_get(ADC_NOTE));
+
+    /* Main loop. */
     while (1)
     {
-        set_wave();
-        set_tempo();
-        set_note();
+        adc_update_all();
+
+        if (adc_is_changed(ADC_MODE))
+            set_wave(adc_get(ADC_MODE));
+        if (adc_is_changed(ADC_TEMPO))
+            set_tempo(adc_get(ADC_TEMPO));
+        if (adc_is_changed(ADC_NOTE))
+            set_note(adc_get(ADC_NOTE));
     }
 }
