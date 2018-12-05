@@ -25,6 +25,9 @@
 /* Tap button state. */
 static uint8_t tapst = 0;
 
+/* Note length multiplier in 16th. */
+static uint8_t note_multiplier;
+
 /* LFO phase. */
 static uint8_t phase;
 
@@ -174,17 +177,40 @@ static void set_tempo()
 
 static void set_note()
 {
-    /* Note lengths:
-        1/1
-        1/2
-        1/4
-        1/8
-        1/16 ???
-      */
-
     if (adc_is_changed(ADC_NOTE))
     {
-        // TODO
+        uint8_t adc = adc_get(ADC_NOTE);
+
+        if (adc < ROTARY_CMP_VAL(0, 6))
+        {
+            /* 1/1 note in 16th */
+            note_multiplier = 16;
+        }
+        else if (adc < ROTARY_CMP_VAL(1, 6))
+        {
+            /* 1/2 note in 16th */
+            note_multiplier = 8;
+        }
+        else if (adc < ROTARY_CMP_VAL(2, 6))
+        {
+            /* 1/4 note in 16th */
+            note_multiplier = 4;
+        }
+        else if (adc < ROTARY_CMP_VAL(3, 6))
+        {
+            /* 1/8p note in 16th */
+            note_multiplier = 3;
+        }
+        else if (adc < ROTARY_CMP_VAL(4, 6))
+        {
+            /* 1/8 note */
+            note_multiplier = 2;
+        }
+        else
+        {
+            /* 1/16 note in 16th */
+            note_multiplier = 1;
+        }
     }
 }
 
