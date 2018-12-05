@@ -20,7 +20,7 @@ uint8_t adc_is_changed(uint8_t adc)
     /* Read ADC. */
     ADMUX = (1 << ADLAR) | (1 << REFS0) | adc;
     ADCSRA |= (1 << ADSC);
-    loop_until_bit_is_set(ADCSRA, ADSC);
+    loop_until_bit_is_clear(ADCSRA, ADSC);
     val = ADCH;
 
     if ( ((prev > val) && (prev - val) > ADC_CHANGE_THRESHOLD)
