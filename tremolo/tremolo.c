@@ -141,7 +141,18 @@ ISR(TIMER2_OVF_vect)
 
 static void set_wave(uint8_t val)
 {
-    wf_set_square();
+    if (val < ROTARY_CMP_VAL(0, 12))
+        wf_set_rampup();
+    else if (val < ROTARY_CMP_VAL(1, 12))
+        wf_set_rampdown();
+    else if (val < ROTARY_CMP_VAL(2, 12))
+        wf_set_square();
+    else if (val < ROTARY_CMP_VAL(3, 12))
+        wf_set_triangle();
+    else if (val < ROTARY_CMP_VAL(4, 12))
+        wf_set_sine();
+    else
+        wf_set_rampup();
 }
 
 static void set_tempo(uint8_t val)
