@@ -199,7 +199,7 @@ static void init_gpio()
 
 static void init_timers()
 {
-    /* PWM driver. Use OC1A (PB2) as output. */
+    /* PWM driver. Use OC0A (PD6) as output. */
     TCCR0A = (1 << COM0A1) | (1 << WGM00) | (1 << WGM01);
     TCCR0B = (1 << CS00);
     DDRD |= (1 << DDD6);
