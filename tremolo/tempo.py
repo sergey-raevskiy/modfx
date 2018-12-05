@@ -8,7 +8,7 @@ import math
 
 # 16 MHz CPU clock
 fcpu = 16000000
-note = 1.0/4
+note = 1.0/16
 
 # Convert potentiometer position to bpm
 def bpm(v):
@@ -25,6 +25,6 @@ s = ""
 for i in range(256):
     if (i % 8 == 0):
         s = s + "\n"
-    s = s + "%d, " % (bpm2icr(bpm(i)))
+    s = s + "%5d, " % (bpm2icr(bpm(i)))
 
 print s
