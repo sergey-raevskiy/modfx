@@ -41,7 +41,7 @@ static void update_lfo()
     OCR0A = wave_func(lfo_phase);
 
     /* Frequency division. */
-    if (lfo_subcounter++ >= note_multiplier)
+    if (++lfo_subcounter >= note_multiplier)
     {
         lfo_phase++;
         lfo_subcounter = 0;
@@ -50,11 +50,8 @@ static void update_lfo()
 
 static void update_bpm_led()
 {
-    if (bpm_phase >= 4 * 256)
-        bpm_phase = 0;
-
     /* Set the tap led state. */
-    if ((bpm_phase < 0xff) || tapst)
+    if (((bpm_phase & 0x300) == 0) || tapst)
         BPM_LED_ON();
     else
         BPM_LED_OFF();
@@ -144,18 +141,7 @@ ISR(TIMER2_OVF_vect)
 
 static void set_wave(uint8_t val)
 {
-    if (val < ROTARY_CMP_VAL(0, 12))
-        wf_set_rampup();
-    else if (val < ROTARY_CMP_VAL(1, 12))
-        wf_set_rampdown();
-    else if (val < ROTARY_CMP_VAL(2, 12))
-        wf_set_square();
-    else if (val < ROTARY_CMP_VAL(3, 12))
-        wf_set_triangle();
-    else if (val < ROTARY_CMP_VAL(4, 12))
-        wf_set_sine();
-    else
-        wf_set_rampup();
+    wf_set_square();
 }
 
 static void set_tempo(uint8_t val)
@@ -232,6 +218,9 @@ static void set_note(uint8_t val)
         /* 1/16 note in 16th */
         note_multiplier = 1;
     }
+
+    /* FIXME: Allow reset. */
+    reset_phase();
 }
 
 static void init_gpio()
