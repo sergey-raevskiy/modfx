@@ -19,9 +19,9 @@ void wf_set_rampdown()
 void wf_set_square()
 {
     for (uint16_t i = 0; i < 128; i++)
-        wf_wf[i] = 0;
-    for (uint16_t i = 128; i < 256; i++)
         wf_wf[i] = 0xFF;
+    for (uint16_t i = 128; i < 256; i++)
+        wf_wf[i] = 0;
 }
 
 void wf_set_triangle()
