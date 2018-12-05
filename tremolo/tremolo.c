@@ -202,7 +202,7 @@ static void init_timers()
     /* PWM driver. Use OC1A (PB2) as output. */
     TCCR0A = (1 << COM0A1) | (1 << WGM00) | (1 << WGM01);
     TCCR0B = (1 << CS00);
-    DDRB |= (1 << DDB2);
+    DDRD |= (1 << DDD6);
 
     /* Configure timer1 as plain timer. Ck/1, TOP value is ICR1. */
     ICR1 = 24932; /* 150 BPM */
