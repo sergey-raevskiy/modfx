@@ -10,16 +10,16 @@
 #define ROTARY_CMP_VAL(pos, npos) ((255 * pos + 127) / (npos - 1))
 
 /* BPM led */
-#define BPM_LED_PORT  PORTB
-#define BPM_LED_DDR   DDRB
-#define BPM_LED_PIN   PINB5
+#define BPM_LED_PORT  PORTD
+#define BPM_LED_DDR   DDRD
+#define BPM_LED_PIN   PIND7
 #define BPM_LED_ON()  (BPM_LED_PORT |= (1 << BPM_LED_PIN))
 #define BPM_LED_OFF() (BPM_LED_PORT &= ~(1 << BPM_LED_PIN))
 
 /* Tap button */
 #define TAP_TEMPO_PORT   PORTB
 #define TAP_TEMPO_DDR    DDRB
-#define TAP_TEMPO_PIN    PINB4
+#define TAP_TEMPO_PIN    PINB0
 #define TAP_IS_PRESSED() bit_is_clear(PINB, TAP_TEMPO_PIN)
 
 /* Tap button state. */
