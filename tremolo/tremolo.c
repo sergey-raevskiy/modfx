@@ -130,6 +130,7 @@ ISR(TIMER2_OVF_vect)
 
             tapst++;
         }
+        break;
     case 3:
         if (tap_debounce == 0x00)
         {
@@ -259,7 +260,7 @@ static void init_timers()
     TIMSK1 = (1 << TOIE1);
 
     /* Configure timer2 as plain timer. Ck/8, TOP value is 0xff. */
-    TCCR2B = (1 << CS21);
+    TCCR2B = (1 << CS21) | (1 << CS22);
 
     /* Enable timer2 overflow interrupt. */
     TIMSK2 = (1 << TOIE2);
