@@ -126,7 +126,7 @@ ISR(TIMER2_OVF_vect)
             /* Tap button pressed second time. */
 
             /* Set new tempo. */
-            ICR1 = tap_counter * 8;
+            ICR1 = tap_counter * 2;
 
             tapst++;
         }
@@ -260,7 +260,7 @@ static void init_timers()
     TIMSK1 = (1 << TOIE1);
 
     /* Configure timer2 as plain timer. Ck/8, TOP value is 0xff. */
-    TCCR2B = (1 << CS21) | (1 << CS22);
+    TCCR2B = (1 << CS21);
 
     /* Enable timer2 overflow interrupt. */
     TIMSK2 = (1 << TOIE2);
