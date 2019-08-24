@@ -142,15 +142,18 @@ ISR(TIMER2_OVF_vect)
 
 static void set_wave(uint8_t val)
 {
-    if (val < ROTARY_CMP_VAL(0, 12))
+    /* Fix for 12P rotary switch: use additional 
+       resistor between +5V and top contact.
+       Hence 12+1=13 NPOS constant. */
+    if (val < ROTARY_CMP_VAL(0, 13))
         wf_set_rampup();
-    else if (val < ROTARY_CMP_VAL(1, 12))
+    else if (val < ROTARY_CMP_VAL(1, 13))
         wf_set_rampdown();
-    else if (val < ROTARY_CMP_VAL(2, 12))
+    else if (val < ROTARY_CMP_VAL(2, 13))
         wf_set_square();
-    else if (val < ROTARY_CMP_VAL(3, 12))
+    else if (val < ROTARY_CMP_VAL(3, 13))
         wf_set_triangle();
-    else if (val < ROTARY_CMP_VAL(4, 12))
+    else if (val < ROTARY_CMP_VAL(4, 13))
         wf_set_sine();
     else
         wf_set_rampup();
