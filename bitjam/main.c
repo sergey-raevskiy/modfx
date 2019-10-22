@@ -21,7 +21,7 @@ int main(void)
     TCCR1B = (1 << CS10) | (1 << WGM12 ) | (1 << WGM13);
     ICR1 = F_CPU / 440;
 
-    ADCSRA = (1 << ADEN) | (1 << ADPS0) | (1 << ADPS1) | (1 << ADPS2) | (1 << ADIE) | (1 << ADATE);
+    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADIE) | (1 << ADATE);
     ADCSRB = (1 << ADTS1) | (1 << ADTS2);
     ADMUX = (1 << ADLAR) | (1 << REFS0);
 
