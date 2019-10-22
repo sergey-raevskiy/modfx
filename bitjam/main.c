@@ -3,8 +3,18 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+static uint8_t get_bit_mask(uint8_t nbits)
+{
+    return 0xff << (8 - nbits);
+}
+
 static uint8_t adc;
 static uint8_t mask;
+
+ISR(TIMER1_OVF_vect)
+{
+    //PORTD++;
+}
 
 ISR(ADC_vect)
 {
@@ -15,17 +25,18 @@ ISR(ADC_vect)
 
 int main(void)
 {
-    DDRD = 0b11111111;
+    DDRD = 0xff;
 
     TCCR1A = (1 << WGM11);
-    TCCR1B = (1 << CS10) | (1 << WGM12 ) | (1 << WGM13);
-    ICR1 = F_CPU / 440;
+    TCCR1B = (1 << CS10) | (1 << WGM12) | (1 << WGM13);
+    ICR1 = 400;
+    TIMSK1 |= (1 << TOIE1);
 
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADIE) | (1 << ADATE);
     ADCSRB = (1 << ADTS1) | (1 << ADTS2);
     ADMUX = (1 << ADLAR) | (1 << REFS0);
 
-    mask = 0xff;
+    mask = get_bit_mask(3);
 
     sei();
 
