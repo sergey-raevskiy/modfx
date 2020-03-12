@@ -11,22 +11,34 @@ static uint8_t get_bit_mask(uint8_t nbits)
 static uint8_t adc;
 static uint8_t mask;
 
-ISR(TIMER1_OVF_vect)
+void SPI_MasterInit(void)
 {
-    //PORTD++;
+    /* Set MOSI and SCK output, all others input */
+    DDRB = (1 << PORTB3) | (1 << PORTB5);
+    /* Enable SPI, Master, set clock rate fck/16 */
+    SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
 }
 
-ISR(ADC_vect)
+uint8_t SPI_MasterTransmit(char cData)
 {
-    adc = ADCH;
-    adc = adc & mask;
-    PORTD = adc;
+    /* Start transmission */
+    SPDR = cData;
+
+    /* Wait for transmission complete */
+    while(!(SPSR & (1<<SPIF)))
+        ;
+
+    return SPDR;
+}
+
+ISR(TIMER1_OVF_vect)
+{
+    //adc = adc & mask;
+    adc = SPI_MasterTransmit(adc);
 }
 
 int main(void)
 {
-    DDRD = 0xff;
-
     TCCR1A = (1 << WGM11);
     TCCR1B = (1 << CS10) | (1 << WGM12) | (1 << WGM13);
     ICR1 = 400;
