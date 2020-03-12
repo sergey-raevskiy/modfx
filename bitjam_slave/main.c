@@ -15,7 +15,7 @@ int main(void)
     DDRD = 0xff;
 
     /* Init ADC */
-    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADIE) | (1 << ADATE);
+    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADATE);
     ADCSRB = (1 << ADTS1) | (1 << ADTS2);
     ADMUX = (1 << ADLAR) | (1 << REFS0);
 
