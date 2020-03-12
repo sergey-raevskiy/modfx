@@ -23,7 +23,7 @@ int main(void)
     DDRB = (1 << PORTB4);
 
     /* Enable SPI */
-    SPCR = (1 << SPE);
+    SPCR = (1 << SPE) | (1 << SPIE);
     sei();
 
     while (1)
